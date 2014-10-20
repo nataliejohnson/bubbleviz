@@ -523,7 +523,7 @@ var current_term_filter = null;
 var order_and_filter = function(){
   $("#searches").isotope({
     layoutMode: 'masonry',
-  transitionDuration:'0.8s',
+    transitionDuration:'0.8s',
     filter: combine_filters([current_term_filter, current_date_filter]),
     getSortData:{
       timestamp: weigh_by_date,
@@ -535,7 +535,7 @@ var order_and_filter = function(){
       timestamp: false,
       personalisation:false
     },
-    sortBy:"rank"
+    sortBy:"timestamp"
   });
 };
 

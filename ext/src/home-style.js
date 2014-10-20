@@ -1,12 +1,6 @@
 var containingSelector = "#searches";
 var boxSelector = ".search";
 var tobparSelector = "#topbar";
-var original_width, original_height, aspect_ration;
-
-/*
-REAL.PerspectiveTransform();
-*/
-
 
 
 var element_to_transform_config = function (elem){
@@ -34,88 +28,6 @@ var element_to_transform_config = function (elem){
   }
 };
 
-//PerspectiveTransform(element_to_transform_config(element))
-
-var PerspectiveTransform = function(config) {
-
-  var element = config.element; // DOM element to be transformed
-  var src   = config.src;   // Source points of the element
-  var dst   = config.dst;   // Destiny points of the element
-  
-  var a = [[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
-  var b = [0,0,0,0,0,0,0,0];
-
-  for( var i = 0; i < 4; i++ ){
-    a[i] = [];
-        a[i][0] = a[i+4][3] = src[i].x;
-        a[i][1] = a[i+4][4] = src[i].y;
-        a[i][2] = a[i+4][5] = 1;
-        a[i][3] = a[i][4] = a[i][5] =
-        a[i+4][0] = a[i+4][1] = a[i+4][2] = 0;
-        a[i][6] = -src[i].x*dst[i].x;
-        a[i][7] = -src[i].y*dst[i].x;
-        a[i+4][6] = -src[i].x*dst[i].y;
-        a[i+4][7] = -src[i].y*dst[i].y;
-        
-        b[i] = dst[i].x;
-        b[i+4] = dst[i].y;
-    }
-    
-  var bM = [];
-  for(i=0; i<b.length; i++){
-    bM[i] = [b[i]];
-  }
-  
-  // Matrix Libraries from a Java port of JAMA: A Java Matrix Package, http://math.nist.gov/javanumerics/jama/
-  // Developed by Dr Peter Coxhead: http://www.cs.bham.ac.uk/~pxc/
-  // Available here: http://www.cs.bham.ac.uk/~pxc/js/
-  var A = Matrix.create(a);
-  var B = Matrix.create(bM);
-  var X = Matrix.solve(A,B);
-
-  $fullview = $(element).find('.fullview');
-  
-  $fullview.show().css({
-    'transition-duration': '1s',
-    //'position': 'fixed',
-    'transform-origin': 'top left',
-    //'top': '0px',
-    //'left':'0px',
-    'background-color':'#ffccff',
-    'z-index': '100000'
-  });
-
-  $fullview.css('transform', "matrix3d(" + X.mat[0][0] + "," + X.mat[3][0] + ", 0," + X.mat[6][0] + "," + X.mat[1][0] + "," + X.mat[4][0] + ", 0," + X.mat[7][0] + ",0, 0, 1, 0," + X.mat[2][0] + "," + X.mat[5][0] + ", 0, 1)");
-  
-
-};
-
-
-
-
-
-
-
-
-var resizeBoxes = function (){
-	var containerWidth=$(containingSelector).width();
-	var width_ratio = containerWidth/original_width;
-	var num_boxes = Math.floor(width_ratio);
-	var remainingWidth = containerWidth - (num_boxes * original_width);
-	var width_increment = remainingWidth/num_boxes;
-	var new_width = original_width+width_increment;
-	var new_height = new_width/aspect_ration;
-	//console.log(containerWidth,width_ratio,num_boxes,remainingWidth,width_increment,new_width,new_height);
-	$(boxSelector).width(new_width);
-	$(boxSelector).height(new_height);
-};
-
-var store_sizes = function(){
-  original_width = $(boxSelector).outerWidth();
-  original_height = $(boxSelector).outerHeight();
-  aspect_ration = original_width / original_height;
-  //console.log(original_width,original_height,aspect_ration);
-}
 
 var expended = false;
 
@@ -131,7 +43,6 @@ var collapse_tile = function(elem){
   //order_and_filter();
 
   $('body').css('overflow-y', 'auto');
-  resizeBoxes();
   var new_settings = {
     position: 'fixed',
     top: ($search.position().top - $(document).scrollTop()) +'px',
@@ -191,10 +102,10 @@ var expand_tile = function(elem){
   
   $fullview.find('.results-personal').isotope({
     itemSelector: '.result',
-	layoutMode: 'masonry',
-	packery: {
-  gutter: 0
-},
+  	layoutMode: 'masonry',
+  	packery: {
+      gutter: 0
+    },
     getSortData: {
       rank: function(elem){
         return parseInt($(elem).find('.rank').text());
@@ -270,31 +181,7 @@ $(function(){
     stickyNav();
   });
 
-  /*$(tobparSelector).mouseenter(function(){
-    $(tobparSelector).find(".folder").stop().slideDown();
-  });
-  $(tobparSelector).mouseleave(function(){
-    var scrollTop = $(window).scrollTop();
-    if (scrollTop > (stickyNavTop+5) ){
-      $(tobparSelector).find(".folder").stop().slideUp();
-    } 
-  });*/
-
 });
-
-
-
-/*
- * search tiles behaviour
- */
-$(function(){
- 	store_sizes();
- 	resizeBoxes();
- 	$(window).resize(function(){
- 		resizeBoxes();
- 	});
-});
-
 
 /*
  * Filtering logic
@@ -408,5 +295,18 @@ $(function() {
   });
 });
 
-
+function dotrans($from, $to){
+  if( !$to.hasClass('effeckt-page-animating') && !$from.hasClass('effeckt-page-animating') ){
+    $to.find('.collapser').hide();
+    $from.find('.collapser').hide();
+    $to.addClass('effeckt-page-animating effeckt-page-active ' + $to.data('transition-in'));
+    $from.addClass('effeckt-page-animating');
+    setTimeout(function(){ 
+      $from.removeClass('effeckt-page-active effeckt-page-animating');
+      $to.removeClass('effeckt-page-animating '+$to.data('transition-in'));
+      $to.find('.collapser').show();
+      $from.find('.collapser').hide();
+    }, 2000);
+  }
+}
 

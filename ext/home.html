@@ -6,7 +6,11 @@
       <link rel="stylesheet" href="js/jquery-ui-1.11.1/jquery-ui.min.css">
       <link rel="stylesheet" href="js/JQRangeSlider-5.7.0/css/iThing-min.css">
       <link rel="stylesheet" type="text/css" media="screen" href="PlainMedium-Regular.css" />
+      <link rel="stylesheet" href="css/effeckt.css">
+      
+
       <script src="js/jquery/jquery.min.js"></script>
+      <script src="js/uuid.js"></script>
       <script src="js/jquery-ui-1.11.1/jquery-ui.min.js"></script>
       <script src="js/JQRangeSlider-5.7.0/JQDateRangeSlider-withRuler-min.js"></script>
       <script src="js/XMLWriter-1.0.0.js"></script>
@@ -29,97 +33,107 @@
       
 
 
-      <script id="search-template" type="text/x-handlebars-template">
+      <script id="search-tile-template" type="text/x-handlebars-template">
          <div class="search" data-uid="{{uid}}">
-         	<div class="fullview">
-         	<a class="collapser"></a>
-         	<div class="leftfull">
-         	<span class="break-search">You searched for</span><br>
-         		<div class="search-terms">{{terms}}</div>
-         		<div class="date">at {{date}}</div>		
-         	</div>	
-         	
-         	<div class="percentage">{{percentage}}%<p class="break-personalised">personalised</p>
-         	</div>
-         
-         
-         	
-         		<div class="results-personal">
-         		{{#each personalScores}}
-         			<div class="result {{category}}">
-         				<div class="rank">{{personal_rank}}</div>
-						<div class="stupid">
-         				<div class="anon-rank">{{anonymous_rank}}</div>
-         				<div class="indicator {{indicatorclass}}"></div>
-						</div>
-         				<a class"url" href="{{url}}" target="_blank">{{result}}</a>
-         				<!--<div class="score">{{score}}</div>-->
-         			</div>
-         		{{/each}}
-         		</div>
-         		<!--
-            {{#each anonymous}}
-            	{{url}}
-            	{{title}}
-            	{{snippet}}
-            {{/each}}
-            -->
-         
-         	</div>
          	<div class="tileview">
          		<div class="search-terms">{{terms}}</div>
          	</div>
+         </div>
+      </script>
+
+      <script id="search-fullview-template" type="text/x-handlebars-template">
+         <div 
+            data-effeckt-page="page-{{uid}}" 
+            data-transition-in="scale-down-from-front" 
+            class="fullview" 
+            data-uid="{{uid}}">
+            <a class="collapser"></a>
+            <div class="leftfull">
+            <span class="break-search">You searched for</span><br>
+               <div class="search-terms">{{terms}}</div>
+               <div class="date">at {{date}}</div>    
+            </div>   
+            
+            <div class="percentage">{{percentage}}%<p class="break-personalised">personalised</p></div>
+            
+               <div class="results-personal">
+               {{#each personalScores}}
+                  <div class="result {{category}}">
+                     <div class="rank">{{personal_rank}}</div>
+                  <div class="stupid">
+                     <div class="anon-rank">{{anonymous_rank}}</div>
+                     <div class="indicator {{indicatorclass}}"></div>
+                  </div>
+                     <a class"url" href="{{url}}" target="_blank">{{result}}</a>
+                     <!--<div class="score">{{score}}</div>-->
+                  </div>
+               {{/each}}
+               </div>
+               <!--
+            {{#each anonymous}}
+               {{url}}
+               {{title}}
+               {{snippet}}
+            {{/each}}
+            -->
          </div>
       </script>
       
   
    </head>
    <body>
-      <div id="topbar">
-         <div id="top-nav">
-            <div class="inner-middle">
-           <a> Persanalysed | </a><a href="report.html">Report</a> | <a href="options.html">Options</a>
+      <div 
+         data-effeckt-page="default-view" 
+         data-transition-in="scale-down-from-front" 
+         class="effeckt-page-active">
+         <div id="topbar">
+            <div id="top-nav">
+               <div class="inner-middle">
+              <a> Persanalysed | </a><a href="report.html">Report</a> | <a href="options.html">Options</a>
+               </div>
             </div>
-         </div>
-         <div class="folder">
-            <div class="filtering">
-               <div class="inner">
-                  <dl class="accordion">
-                     <dt class="accordion__title">Search</dt>
-                     <dd class="accordion__content">
-                     <form>
-                        <div class="termsearch"><input id="termsearch-input" name="focus"  required class="search-box" placeholder="Enter a term from your search history..." />
-                        <button class="close-icon" type="reset"></button>
-                        </div>
-                        </form>
-                     </dd>
-                     <dt class="accordion__title">Filter</dt>
-                     <dd class="accordion__content">
-                        <div class="dateslider">
-                           <div id="dateslider"></div>
-                        </div>
-                     </dd>
-                     <dt class="accordion__title">Sort</dt>
-                     <dd class="accordion__content">
-                        <span>Sort by:</span>
-                        <div class="ordering">
-                           <button id="sortby-most-personal">Personalisation</button>
-                           <button id="sortby-time-ascending">Earliest</button>
-                           <button id="sortby-time-descending">Latest</button>
-                           <button id="sortby-alpha">Terms</button>
-                        </div>
-                     </dd>
-                  </dl>
-                  <div>
+            <div class="folder">
+               <div class="filtering">
+                  <div class="inner">
+                     <dl class="accordion">
+                        <dt class="accordion__title">Search</dt>
+                        <dd class="accordion__content">
+                        <form>
+                           <div class="termsearch"><input id="termsearch-input" name="focus"  required class="search-box" placeholder="Enter a term from your search history..." />
+                           <button class="close-icon" type="reset"></button>
+                           </div>
+                           </form>
+                        </dd>
+                        <dt class="accordion__title">Filter</dt>
+                        <dd class="accordion__content">
+                           <div class="dateslider">
+                              <div id="dateslider"></div>
+                           </div>
+                        </dd>
+                        <dt class="accordion__title">Sort</dt>
+                        <dd class="accordion__content">
+                           <span>Sort by:</span>
+                           <div class="ordering">
+                              <button id="sortby-most-personal">Personalisation</button>
+                              <button id="sortby-time-ascending">Earliest</button>
+                              <button id="sortby-time-descending">Latest</button>
+                              <button id="sortby-alpha">Terms</button>
+                           </div>
+                        </dd>
+                     </dl>
+                     <div>
+                     </div>
                   </div>
                </div>
             </div>
          </div>
+
+         <div id="searches">
+            <div id="mynoresults" style="display:none;">terrsting</div>
+         </div>
       </div>
-      <div id="searches">
-      </div>
+      
+      <div id="detail-views"></div>
      
-      <div id="mynoresults" style="display:none;">terrsting</div>
-      <!--div style="clear:both;"></div-->
    </body>
 </html>
