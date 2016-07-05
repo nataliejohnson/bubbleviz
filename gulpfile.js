@@ -1,5 +1,5 @@
 var gulp = require("gulp");
-
+var sass = require("gulp-sass");
 var config = {
   SRC: './src/js/**/*.js', // js source files to be compiled (or not)
   TARGET: './extension/', // what's given to chrome
