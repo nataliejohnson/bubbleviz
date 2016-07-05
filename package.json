@@ -25,6 +25,8 @@
     "d3": "^3.5.17",
     "d3-tip": "^0.6.7",
     "d4": "^0.8.15",
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.2.1",
     "handlebars": "^4.0.5",
     "hasher": "^1.2.0",
     "isotope-layout": "^3.0.0",
@@ -39,6 +41,7 @@
     "xml-writer": "^1.6.0"
   },
   "devDependencies": {
-    "grunt": "^1.0.1"
+    "grunt": "^1.0.1",
+    "gulp-sass": "^2.3.2"
   }
 }
