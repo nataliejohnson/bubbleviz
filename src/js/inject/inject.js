@@ -90,49 +90,17 @@ function main(){
   bubbleviz.className = "bubbleviz";
   document.getElementsByTagName('body')[0].appendChild(bubbleviz);
 
-  var currentHash = "";
-  // On url change, do scrape page
-  function handleChanges(newHash, oldHash){
-    console.log("Hash changed '"+oldHash+"' -> '"+newHash+"'");
-    currentHash = newHash;
-    setTimeout(scrapeForResults, 750);
-  }
+  var URL = null;
 
-  function handleInitialised(newHash, oldHash){
-    console.log("Hash initialised '"+oldHash+"' -> '"+newHash+"'");
-    currentHash = newHash;
-    setTimeout(scrapeForResults, 750);
-  }
-
-  window.addEventListener("message", function(event){
-    // console.log("Received event from page", event);
-    if (event.source!=window){ return; }
-    if(event.data.newHash){
-      handleChanges(currentHash, event.data.newHash);
+  window.setInterval(function(){
+    if(URL !== document.URL){
+      console.log("OLD: ["+URL+"], NEW:["+document.URL+"]")
+      URL = document.URL;
+      scrapeForResults();
     }
-  }, false);
-
-
-  hasher.changed.add(handleChanges);
-  hasher.initialized.add(handleInitialised);
-  hasher.init();
+  }, 100)
 
   console.log("Bubbleviz initialised");
 }
 
-var readyStateCheckInterval = setInterval(function() {
-  if (document.readyState === "complete") {
-    clearInterval(readyStateCheckInterval);
-
-    var s = document.createElement('script');
-    s.src = chrome.extension.getURL('src/inject/embed-script.js');
-    (document.head || document.documentElement).appendChild(s);
-
-
-    main();
-  }
-}, 10);
-
-var InjectHist = window.history;
-
-console.log("History available to the inject.js script:", window.history);
+main();
