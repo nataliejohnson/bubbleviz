@@ -7,3 +7,14 @@
 	width:100%;
 	z-index: 10000;
 }
+.persanalysed-personal-result{
+	border: 2px solid green;
+}
+.persanalysed-both-result{
+	border: 2px solid orange;
+}
+.persanalysed-result-annotation{
+	font-size:300%;
+	font-weight:bold;
+	color:orange;
+}

@@ -1,15 +1,15 @@
 /*
- * js/common.js 
+ * js/common.js
  */
- 
+
 $(function(){
-$(window).load(function() { 
-  $("#status").delay(1000).fadeOut("slow"); 
+$(window).load(function() {
+  $("#status").delay(1000).fadeOut("slow");
 			$(".loading").delay(1000).fadeOut("slow");
 			console.log("fading out");
 		})
 		 	});
-	$(function(){ 		
+	$(function(){
 			$('.modal-toggle').on('click', function(e) {
   e.preventDefault();
   $('.modal').toggleClass('is-visible');
@@ -23,7 +23,7 @@ function getHash(url){
 }
 
 function getParameterByName(query_string, name) {
-    
+
   name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
   var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
     results = regex.exec(query_string);
@@ -49,7 +49,7 @@ var scores_to_data_template = function(scores){
       }
     }
     score.show_rank = true;
-    
+
     if(!score.personal_rank){
       score.anonymous_rank = "+";
       score.indicatorclass = "indicator-unique";
@@ -73,21 +73,22 @@ var results_to_scores = function(results){
     {result: "", category: "both"|"anonymous"|"personal", score: 0.654},
     */
   ];
-  
+
   var personal_results_index = {};
-  
+
   results.personal.forEach(function(result, i){
     result.personal_rank = i+1;
     personal_results_index[result.url] = result;
   });
-  
+
   results.anonymous.forEach(function(result, i){
     var anonymous_rank = i+1;
       var name = result.result;
       var canonical_url = anonymous_url_to_canonical_url(result.url);
-    
+
       if (canonical_url in personal_results_index){
         scores.push({
+          hveid: personal_results_index[canonical_url].hveid,
           url: canonical_url,
           search_url: results.url,
           terms: results.terms,
@@ -95,11 +96,11 @@ var results_to_scores = function(results){
           category: "both",
           personal_rank: personal_results_index[canonical_url].personal_rank,
           anonymous_rank: anonymous_rank,
-          score: anonymous_rank - personal_results_index[canonical_url].personal_rank 
+          score: anonymous_rank - personal_results_index[canonical_url].personal_rank
         });
-        
+
         delete personal_results_index[canonical_url];
-        
+
       }else{
         scores.push({
           terms: results.terms,
@@ -108,21 +109,22 @@ var results_to_scores = function(results){
           url: canonical_url,
           anonymous_rank: anonymous_rank,
           category: "anonymous"
-        }); 
+        });
       }
   });
-  
+
   for(var url in personal_results_index){
     scores.push({
+      hveid: personal_results_index[url].hveid,
       terms: results.terms,
       search_url: results.url,
       url: url,
       result: personal_results_index[url].result,
       personal_rank: personal_results_index[url].personal_rank,
       category: "personal"
-    }); 
+    });
   }
-  
+
   return scores;
 };
 
@@ -142,9 +144,9 @@ var result_comparator = function(a,b){
 
   // We prefer the personal rank for sorting, since we want more personal items to be closer to the center.
   if(a.category == "both" && b.category == "both"){ return a.personal_rank - b.personal_rank; }
-  
+
   return 0;
-    
+
 };
 
 /*
@@ -193,7 +195,7 @@ function history2indexedHistory (history){
 function toArray(obj) {
   var array = [];
   // iterate backwards ensuring that length is an UInt32
-  for (var i = obj.length >>> 0; i--;) { 
+  for (var i = obj.length >>> 0; i--;) {
     array[i] = obj[i];
   }
   return array;
@@ -218,23 +220,26 @@ function grabRawText(elem){
 
 function parseDocumentForResults(element){
     var elems = element.querySelectorAll(".g");
-        
+
     var results = [];
-        
+
     toArray(elems).forEach(function(elem){
-    var innerElem = elem.querySelector('.r');
-    var snippetElem = elem.querySelector('.st');
-      if(innerElem){
-        var link = innerElem.querySelector('a');
-        if(link){
-          results.push({
-            result: link.text,
-            snippet: (snippetElem)?grabRawText(snippetElem):"",
-            url: link.getAttribute('href')
-          });
+      var container = elem.querySelector('.rc');
+      var innerElem = elem.querySelector('.r');
+      var snippetElem = elem.querySelector('.st');
+        if(innerElem){
+          var link = innerElem.querySelector('a');
+          if(link){
+            // console.log("container element: ", container);
+            results.push({
+              hveid: (container)?container.dataset.hveid:null,
+              result: link.text,
+              snippet: (snippetElem)?grabRawText(snippetElem):"",
+              url: link.getAttribute('href')
+            });
+          }
         }
-      }
-    });
+      });
     return results;
 }
 
@@ -262,13 +267,13 @@ function searches2results(searches){
         };
         search.personal.forEach(function(result){
           result.search = search_unique;
-          result.id = ""+counter; 
+          result.id = ""+counter;
           counter += 1;
           results.push(result);
         });
         search.anonymous.forEach(function(result){
           result.search = search_unique;
-          result.id = ""+counter; 
+          result.id = ""+counter;
           counter+=1;
           results.push(result);
         });
@@ -278,7 +283,7 @@ function searches2results(searches){
 
 function get_searches(onSuccess){
   chrome.storage.local.get("searches", function(store){
-    
+
     // We add the search score here to support legacy searches that didn't
     // get the score calculated when they were stored.
     store.searches.forEach(function(search){
@@ -295,12 +300,12 @@ function get_searches(onSuccess){
 /**
   Building the raw dataset
 
-  !1) fetch searches from chrome storage 
+  !1) fetch searches from chrome storage
   !2) flatten searches into results
   !3) cluster results using carrot2 server
   !4) add category information to results
 
-  The `onDone()` function will be called with a list 
+  The `onDone()` function will be called with a list
   of results in the following format:
 
     {
@@ -337,7 +342,7 @@ function build_results_dataset(onDone, onFail, filter){
     function _onSuccess(data, textStatus, jqXHR){
       //console.log("-> Loaded category clusters", data);
 
-      // We grab the document ids from carrot to be able to match 
+      // We grab the document ids from carrot to be able to match
       // document to cluster, then we tag every document
       data.clusters.forEach(function(cluster){
         cluster.documents.forEach(function(docID){
@@ -366,21 +371,21 @@ function build_results_dataset(onDone, onFail, filter){
 
     carrot_fetch_clusters(
       results,
-      _onSuccess, 
+      _onSuccess,
       _onError
     );
-    
+
   });
 }
 
 
 function searches_to_categorised_results(searches, onSuccess, onFailure){
-    var results = searches2results(searches); 
+    var results = searches2results(searches);
     console.log("searches -> categories")
-    
+
     function _onSuccess(data, textStatus, jqXHR){
       console.log("carrot_fetch success!");
-      // We grab the document ids from carrot to be able to match 
+      // We grab the document ids from carrot to be able to match
       // document to cluster, then we tag every document
       data.clusters.forEach(function(cluster){
         cluster.documents.forEach(function(docID){
@@ -408,7 +413,7 @@ function searches_to_categorised_results(searches, onSuccess, onFailure){
     }
     carrot_fetch_clusters(
       results,
-      _onSuccess, 
+      _onSuccess,
       _onError
     );
 }
@@ -416,16 +421,16 @@ function searches_to_categorised_results(searches, onSuccess, onFailure){
 function build_history_dataset(onDone, onFail){
   if(onDone && (typeof onDone) == "function"){
     chrome.history.search({
-      'text':'', 
-      'maxResults':10000, 
+      'text':'',
+      'maxResults':10000,
       'startTime': (new Date(2012,01,01)).getTime(),
       'endTime': (new Date()).getTime()
     }, onDone);
-  } 
+  }
 }
 
 function search_to_personalisation_score(search){
-  var scores = results_to_scores(search); 
+  var scores = results_to_scores(search);
   // [
   //   {anonymous_rank: x, personal_rank:y, score:x-y},
   //   {anonymous_rank: x},
@@ -442,8 +447,8 @@ function search_to_personalisation_score(search){
   var max_normalised = max_total;
 
   var total = personal_results.map(function(result){
-    if(result.score){ 
-      return Math.abs(result.score); 
+    if(result.score){
+      return Math.abs(result.score);
     }else if (result.personal_rank){
       return Math.abs(personal_results.length - result.personal_rank);
     }else{
@@ -520,7 +525,7 @@ function results_by_date(startDate, endDate){
 }
 
 /*
- * 
+ *
  */
 function weigh_by_date(item){
   return $(item).data('search').timestamp;
@@ -530,7 +535,7 @@ function weigh_by_date(item){
  * string comparison function
  */
 function strcmp( a, b ) {
-    if((a+'').toLowerCase() > (b+'').toLowerCase()) return 1  
+    if((a+'').toLowerCase() > (b+'').toLowerCase()) return 1
     if((a+'').toLowerCase() < (b+'').toLowerCase()) return -1
     return 0
 }
@@ -555,7 +560,7 @@ var order_and_filter = function(){
     Isotope.Item.prototype.hide = function() {
         itemHide.apply( this, arguments );
         $( this.element ).addClass('isotope-hidden');
-    };  
+    };
   var $container = $('#searches');
     $container.isotope({
     itemSelector: '.search',
@@ -572,7 +577,7 @@ var order_and_filter = function(){
       timestamp: false,
       personalisation:false
     },
-    sortBy:"rank",	
+    sortBy:"rank",
   });
   var noItemsAlert = $('#alert');
 	$container.isotope( 'on', 'layoutComplete', function() {
@@ -583,7 +588,7 @@ var order_and_filter = function(){
 	        noItemsAlert.hide(250);
 	    }
 	});
-    
+
 };
 
 
@@ -592,14 +597,14 @@ $(function(){
 $( "#termsearch-input" ).focus(function() {
 			$('.actual-x').show();
 	});
-	 
+
 });
 
 
-		
-	 
 
-		
+
+
+
 
 var reset_slider_bounds = function(min, max){
   $("#dateslider").dateRangeSlider({
