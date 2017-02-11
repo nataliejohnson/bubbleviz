@@ -9,12 +9,12 @@
 		*{
 			padding:0px;
 			margin:0px;
-			box-sizing: border-box;
+			box-sizing:border-box;
 		}
 		html, body{
 			width:100%;
 		height:100%;
-		
+
 		}
 	 #first {
 		background-color: #ffccff;
@@ -22,13 +22,13 @@
 		height:100%;
 
 		}
-		
+
 		#second {
 		background-color: #ffcccc;
 		width:100%;
 		height:100%;
 
-		}   
+		}
 	</style>
 	<script>
 		//mktrans
@@ -38,7 +38,7 @@
 				$from.find('.collapser').hide();
 				$to.addClass('effeckt-page-animating effeckt-page-active ' + $to.data('transition-in'));
 				$from.addClass('effeckt-page-animating');
-				setTimeout(function(){ 
+				setTimeout(function(){
 					$from.removeClass('effeckt-page-active effeckt-page-animating');
 					$to.removeClass('effeckt-page-animating '+$to.data('transition-in'));
 					$to.find('.collapser').show();
@@ -49,12 +49,12 @@
 	</script>
 </head>
 <body>
-	<div id="first" 
-		data-effeckt-page="page1" 
-		data-transition-in="scale-down-from-front" 
+	<div id="first"
+		data-effeckt-page="page1"
+		data-transition-in="scale-down-from-front"
 		class="effeckt-page-active">
 		Hello world! <button class="collapser" onclick="dotrans($('#first'), $('#second'))" ="">do shift</button></div>
-	<div id="second" data-effeckt-page="page2" 
+	<div id="second" data-effeckt-page="page2"
 		data-transition-in="scale-up-from-behind" >
 		Bonjour le Monde. <button class="collapser" onclick="dotrans($('#second'), $('#first'))" ="">do shift</button></div>
 </body>
