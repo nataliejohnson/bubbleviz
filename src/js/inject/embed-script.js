@@ -1,5 +1,5 @@
-(function(history){	
-
+(function(history){
+	console.log("Embed Script triggered.");
 	function getHash(url){
 	  var e = document.createElement('a');
 	  e.href = url;
@@ -16,6 +16,7 @@
 	}
 
 	history.onpushstate = function (state, title, url){
+		console.log("History.onpushstate has been called");
 	    window.postMessage({
 	    	"newHash": getHash(url)
 	    }, "*");

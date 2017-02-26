@@ -4,7 +4,7 @@
 
 
 var visualise_as_radialplot = function(searches){
-  
+
   var symbol_width = 10;
   var center_empty_radius = 235; //( (symbol_width+4) * searches.length) / (2*Math.PI);
   var line_length = (Math.min(width, height)/2) - center_empty_radius;
@@ -14,19 +14,19 @@ var visualise_as_radialplot = function(searches){
   var gap_between_dots = 2;
   var cache = {radius:{},distance:{}};
 
-  var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { 
-    return d.result; 
+  var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+    return d.result;
   });
 
   var svg = d3.select("#chart").append("svg")
     .attr("viewBox", "0 0 "+width+" "+height)
     .attr("preserveAspectRation", "xMidYMid")
     .call(tip)
-  
+
   var searchgroup = svg.append("g")
     .attr("transform", "translate(" + width/2 + "," + height/2 + ")");
 
-  
+
   var searchesEnter = searchgroup.selectAll('g')
     .data(searches)
     .enter()
@@ -38,27 +38,27 @@ var visualise_as_radialplot = function(searches){
     }
     return false;
   }
-  
+
   var radius_of_dot = function(d,i){
     if( cache.radius[i]){ return cache.radius[i]; };
-    
+
     var r;
-    
+
     //var number_of_searches = searches.length;
     //var circ = 2* Math.PI * distance_from_origin(d, i);
     //var width = (circ / (number_of_searches)) - gap_between_dots;
-    
+
     // r=3@distance=70, r=6@distance=200
     // a=3/130, r=ad
     var a = -0.05; // growth rate
     var c = 4.5; // starting value
     r = a*i + c;
-    
+
     if(r>6){r = 6}
     cache.radius[i] = r;
     return r;
   };
-  
+
   var distance_from_origin = function(d, i){
     if( cache.distance[i]){ return cache.distance[i]; };
     var d;
@@ -69,9 +69,9 @@ var visualise_as_radialplot = function(searches){
     }
     cache.distance[i] = d;
     return d;
-    
+
   };
-  
+
   var applyDefaultStyle = function(d3selection){
       /*d3selection.select('text')
         .attr('x', line_length+text_offset )
@@ -82,7 +82,7 @@ var visualise_as_radialplot = function(searches){
       d3selection.select('line')
         .style('stroke', 'black')
         .attr('stroke-width', '1px');*/
-      
+
     var circles = d3selection.selectAll('circle');
       circles.attr('r', radius_of_dot)
       circles.attr('cx', distance_from_origin);
@@ -107,13 +107,13 @@ var visualise_as_radialplot = function(searches){
     })
     .on('mouseout', function(d,i){
       applyDefaultStyle(d3.select(this));
-      
+
     })
 
   /*
   srchs.append('text')
       .text(function(d){
-        return d[0].terms; 
+        return d[0].terms;
       })
       .attr('transform', function(d,i){
         if(isReversed(d,i)){
@@ -124,7 +124,7 @@ var visualise_as_radialplot = function(searches){
       .attr('text-anchor', function(d,i){
         return isReversed(d,i)?"end":"start";
       })
-          
+
   srchs.append('line')
       .attr('x1', center_empty_radius)
       .attr('x2', line_length)
@@ -147,5 +147,5 @@ var visualise_as_radialplot = function(searches){
     });
 
     srchs.each(function(d,i){ applyDefaultStyle(d3.select(this));});
-  
+
 };

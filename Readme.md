@@ -3,6 +3,14 @@ Bubbleviz
 
 A Chrome Extension that will analyse your search results.
 
+Where We're At
+--------------
+
+We're trying to get the hveids of the results so that we can highlight the results that have been promoted, demoted and inserted.
+
+- [ ] List of pages, frequency of visit from history
+- [x] See personalisation on the google page
+- [ ] Show link statistics as panel from individual search page
 
 
 ## Notes

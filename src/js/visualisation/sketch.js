@@ -13,14 +13,14 @@ $(function(){
   var lastMoved = 0;
   var anchor = null;
   var tether = null;
-  
-  
-  
-    
+
+
+
+
   /**
-   * We have to wrap evrything that will use the processing API around the sketch function so 
+   * We have to wrap evrything that will use the processing API around the sketch function so
    * we can access the processing.* namespace.
-   */ 
+   */
    var createSketch  = function(data){
     return function (processing) {
       var showInformation = function(particle){
@@ -32,11 +32,11 @@ $(function(){
         infobox.find('.result').attr('href', result.url).html(result.result);
         if(result.personal_rank){
           infobox.find('.rank #rank-placeholder').html(result.personal_rank);
-          infobox.find('.rank').show(); 
+          infobox.find('.rank').show();
         }else{
-          infobox.find('.rank').hide(); 
+          infobox.find('.rank').hide();
         }
-        
+
         anchor = $('<a>').css({
           position: 'absolute',
           top: particle.pos.y + 'px',
@@ -45,9 +45,9 @@ $(function(){
           height: particle.radius*2 + 'px'
         });
         $('body').append(anchor);
-        
+
         infobox.show();
-        
+
         tether = new Tether({
           element: infobox[0],
           target: anchor[0],
@@ -61,34 +61,34 @@ $(function(){
             }
           ]
         });
-        
+
       };
-  
+
   var hideInformation = function(){
     var infobox = $("#infobox");
     infobox.hide();
     tether.destroy();
     anchor.remove();
   };
-      
-      
-      
-      
+
+
+
+
       var getNoise = function(amplitude){
         var noise = new processing.PVector(Math.random()*((Math.random()>0.5)?-1:1), Math.random()*((Math.random()>0.5)?-1:1));
-        noise.normalize(); 
+        noise.normalize();
         noise.mult(amplitude);
         return noise;
       };
       /**
        * The Particle Object is responsible for movement and display of a particle.
        */
-      var Particle = function(options){ 
+      var Particle = function(options){
         this.velMax = options.maxVel;
         this.pos = options.pos;
         this.colour = options.colour;
         this.accFunction = options.accFunction;
-        
+
         this.result = options.result;
         this.oldPos = null;
         this.drawDot = false;
@@ -99,27 +99,27 @@ $(function(){
         this.vel = new processing.PVector(0,0);
         this.acc = new processing.PVector(0,0);
       };
-      
+
       Particle.prototype.updateVelocity = function(VMousePosition){
         var accel = this.accFunction(VMousePosition, this.pos);
-        
+
         if(this.pos.dist(VMousePosition) > 300){
           this.speedState = "FAST";
         }
-        
-        
+
+
         var since_moved = (new Date().getTime()) - lastMoved;
-        
+
         var time_threshold = 2000;
-        
+
         if(since_moved  > time_threshold){
           this.speedState = "SLOW";
         }
-        
+
         var ko = 5;
         var k = (- ko*since_moved)/time_threshold + ko + 1; // how much faster than normal we can go
-        
-        
+
+
         if(this.speedState == "FAST"){
             //accel.add(getNoise(1));
             this.vel.add(accel);
@@ -128,9 +128,9 @@ $(function(){
             this.vel.add(accel);
             this.vel.limit(this.velMax);
         }
-        
+
       };
-      
+
       Particle.prototype.updatePosition = function(VMousePosition){
         this.pos.add(this.vel);
         if(this.pos.x > processing.width || this.pos.x <0 ){
@@ -140,7 +140,7 @@ $(function(){
           this.vel.y *= -1;
         }
       };
-      
+
       Particle.prototype.update = function(VMousePosition){
         if(this.doUpdate){
           this.updateVelocity(VMousePosition);
@@ -148,9 +148,9 @@ $(function(){
           this.updatePosition(VMousePosition);
         }
       };
-      
-      Particle.prototype.draw = function(){  
-        
+
+      Particle.prototype.draw = function(){
+
         if(this.drawDot){
           processing.noStroke();
           processing.fill(this.colour[0],this.colour[1],this.colour[2]);
@@ -179,70 +179,70 @@ $(function(){
        * We define several potential field for our particles.
        * See the functions plotted at http://fooplot.com/plot/lqvbmcfj5g
        */
-      var personalAccelerationFunction = function(VMousePosition, VParticlePosition){ 
+      var personalAccelerationFunction = function(VMousePosition, VParticlePosition){
         var accel = processing.PVector.sub(VMousePosition, VParticlePosition);
         var dist = accel.mag();
-        
+
         var a = 0.001;
         var b = 0.000000001;
         accel.normalize();
         accel.mult(a*dist+b*Math.pow(dist, 4)); // f = ax
-        
+
         accel.add(getNoise(0.5));
         return accel;
       };
-      
-      var bothAccelerationFunction = function(VMousePosition, VParticlePosition){ 
+
+      var bothAccelerationFunction = function(VMousePosition, VParticlePosition){
         var mass = 1;
         var accel = processing.PVector.sub(VMousePosition, VParticlePosition);
         var dist = accel.mag();
         accel.normalize();
 
         var n = 100;
-        
+
         var force;
         if( dist < n){
           // Sinusoid force = -sin(PI*dist/n) negative cause it's repulsive
           var theta = Math.PI * dist/n;
           var k = 10;
-          force = -(Math.cos(theta)+1) * k; 
+          force = -(Math.cos(theta)+1) * k;
         }else{
-          // Quadratic force = a(dist - n)^2 
+          // Quadratic force = a(dist - n)^2
           var a = 0.000005;
           force = Math.pow( (dist-n), 2) * a;
         }
         // f=ma
         accel.mult(force/mass);
-        
+
         accel.add(getNoise(0.5));
 
         return accel;
       };
 
-      var anonymousAccelerationFunction = function(VMousePosition, VParticlePosition){ 
+      var anonymousAccelerationFunction = function(VMousePosition, VParticlePosition){
         var mass = 1;
         var accel = processing.PVector.sub(VMousePosition, VParticlePosition);
         var dist = accel.mag();
         accel.normalize();
 
         var n = 100;
-        
+
         // reciprocal repulsive force = -a/(dist-n)
         var a = 100;
         var force = -a/(dist)
-        
+
         //weak quadratic attractive force = b(dist)^2
         var b = 0.000005;
         force += b*dist*dist;
 
         // f = ma
         accel.mult(force/mass);
-        
+
         accel.add(getNoise(0.5));
 
         return accel;
       };
-      
+
 
 
 
@@ -269,7 +269,7 @@ $(function(){
           accFunction: anonymousAccelerationFunction,
           colour: [100,100,255]
         },
-      };    
+      };
 
       var colour_options = {
         "personal": [ //shades of red
@@ -288,12 +288,12 @@ $(function(){
           [200,200,255]
         ]
       };
-      
-      
+
+
       var particles = [];
       var selected = null;
       var centerOfMass = null;
-      
+
       var update = function(){
         if(selected){
           particles.forEach(function(particle){
@@ -317,16 +317,16 @@ $(function(){
       processing.draw = function() {
         decayAll();
         update();
-        
+
         particles.forEach(function(particle){
           particle.draw();
         });
       };
-      
+
       processing.addResult = function(result, isInjected){
         var pos = new processing.PVector(Math.random()*processing.width,Math.random()*processing.height);
-      
-        if(isInjected){ 
+
+        if(isInjected){
           console.log("Adding new result to visualisation...");
           var ndist = 450; // distance away from center of mass at which new particles are added
           var com;
@@ -340,10 +340,10 @@ $(function(){
           n.mult(ndist);
           pos = processing.PVector.add(com, n);
         }
-        
+
         var particle = new Particle(
-          $.extend({}, 
-            options[result.category], 
+          $.extend({},
+            options[result.category],
             { // This object overrides the defaults defined in the 'options' variable
               pos: pos,
               result: result,
@@ -352,14 +352,14 @@ $(function(){
             }
           )
         );
-        
+
         particles.push(particle);
       };
-      
+
       processing.clearResults = function(){
         particles = [];
       };
-      
+
       processing.setup = function(){
         for(var si = 0; si < data.length; si++){
           for(var ri = 0; ri<data[si].length; ri++){
@@ -371,9 +371,9 @@ $(function(){
         processing.background(254,254,255);
         processing.noStroke();
       }
-      
-      processing.mouseClicked = function() { 
-        
+
+      processing.mouseClicked = function() {
+
         if(selected){
          selected.unselect();
          hideInformation();
@@ -391,11 +391,11 @@ $(function(){
           nearest.select();
           showInformation(nearest);
           selected = nearest;
-          
+
           var category = selected.result.category;
           var d;
-          if(category == "personal"){ 
-            d = 0; 
+          if(category == "personal"){
+            d = 0;
           }else if (category == "both"){
             d = 125;
           }else{
@@ -406,15 +406,15 @@ $(function(){
           from_selected_to_center.normalize();
           from_selected_to_center.mult(d);
           centerOfMass = processing.PVector.add(selected.pos, from_selected_to_center);
-          
+
         }
-       
+
       };
-      
+
       processing.mouseMoved = function(){
         lastMoved = new Date().getTime();
       };
-      
+
     }
   };
 
@@ -426,7 +426,7 @@ $(function(){
 
     var data = store.searches.map(results_to_scores);
     processing = new Processing(canvas, createSketch(data));
-    
+
     $(window).on('resize', function(){
       $('body').css({width: $(window).width() ,height:$(window).height()});
       processing.size($(window).width(),$(window).height());
@@ -435,19 +435,19 @@ $(function(){
     processing.size($(window).width(),$(window).height());
 
   });
-  
-  
+
+
   chrome.storage.onChanged.addListener(function(changes, namespace) {
     if (processing && ("searches" in changes) && (namespace == "local") ){
-      
+
       var storageChange = changes["searches"];
       var oldSearches = storageChange.oldValue;
       var newSearches = storageChange.newValue;
-      
+
       if ( oldSearches.length < newSearches.length ){
         // We added a new search, add new items
                     var data = newSearches.map(results_to_scores);
-        
+
         for(var si = oldSearches.length; si < data.length; si++){
           for(var ri = 0; ri < data[si].length; ri++){
             var result = data[si][ri];
@@ -455,22 +455,21 @@ $(function(){
 
           }
         }
-        
+
       }else{
         // Something else happened, redraw viz completely
         console.log("Don't know how to deal. Clearing changes.")
         processing.clearResults();
-        
+
       }
-        
+
     }
   });
-  
+
   $('#clear').click(function(){
     chrome.storage.local.set({searches: []}, function(){
       console.log("Cleared local storage");
     });
   });
-  
-});
 
+});

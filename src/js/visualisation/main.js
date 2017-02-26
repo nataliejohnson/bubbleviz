@@ -49,13 +49,13 @@ $(function(){
 
     var spinner = new Spinner(opts).spin();
     console.log("Saving visualisation to gallery");
-    
+
     var onError = function(jqXHR, textStatus, errorThrown){
       spinner.stop();
       $("#saveimg").addClass("fail");
       $("#saveimg .spinnerContainer").hide();
     };
-    
+
     var onSuccess = function(data){
       spinner.stop();
       $("#saveimg").addClass("succeed");
@@ -76,7 +76,3 @@ $(function(){
     })
   });
 })
-
-
-
-
